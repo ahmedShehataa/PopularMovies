@@ -48,14 +48,17 @@ public class Moviefragment extends Fragment {
     public String[] resultString;
     public ArrayList<Movie>MovarrayList;
     Movie m;
-    int i=1;
-
+    int i;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    String sort;
+    String pre;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container,  Bundle savedInstanceState) {
 
-        View view =inflater.inflate(R.layout.fragment_main,container,false);
+        View view =inflater.inflate(R.layout.fragment_main, container, false);
         gridView= (GridView) view.findViewById(R.id.gridView);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,11 +66,8 @@ public class Moviefragment extends Fragment {
 
                 Movie mov = (Movie) parent.getItemAtPosition(position);
                 ((MainActivity) getActivity()).selectMovie(mov);
-//                    Movie mov = (Movie) parent.getItemAtPosition(position);
-//                    Intent intent =new Intent(getActivity(),DetailActivity.class);
-//
-//                    intent.putExtra("mov", mov);
-//                    startActivity(intent);
+
+
             }
         });
         setHasOptionsMenu(true);
@@ -75,6 +75,8 @@ public class Moviefragment extends Fragment {
 
         return view;
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -84,6 +86,10 @@ public class Moviefragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        preferences =PreferenceManager.getDefaultSharedPreferences(getActivity());
+        editor=preferences.edit();
+
+
         int id =item.getItemId();
         if(id==R.id.action_fav){
             this.getFragmentManager().beginTransaction()
@@ -92,13 +98,18 @@ public class Moviefragment extends Fragment {
 
             return true;
         }else if(id==R.id.action_Rated){
-            i=2;
+            //i=2;
+            editor.putString("sort", "top_rated.desc");
+            editor.commit();
             FetchMovieData fetchMovieData=new FetchMovieData();
             fetchMovieData.execute("top_rated.desc");
         }
         else if(id==R.id.action_popularity)
         {
-            i=1;
+            editor.putString("sort", "popularity.desc");
+            editor.commit();
+           // i=1;
+
             updateActivity();
         }
         return super.onOptionsItemSelected(item);
@@ -116,17 +127,23 @@ public class Moviefragment extends Fragment {
         updateActivity();
     }
     private void updateActivity() {
-        if (i == 2) {
-            FetchMovieData fetchMovieData = new FetchMovieData();
-            fetchMovieData.execute("top_rated.desc");
-        } else if (i == 1) {
-            FetchMovieData fetchMovieData = new FetchMovieData();
-            fetchMovieData.execute("popularity.desc");
-        }
 //
-//        else if(i==android.R.id.home){
-//            i=1;
+//        if (i == 2) {
+//
+//        } else if (i == 1) {
+//
 //        }
+        preferences=PreferenceManager.getDefaultSharedPreferences(getActivity());
+        pre=preferences.getString("sort", "popularity.desc");
+
+        FetchMovieData fetchMovieData = new FetchMovieData();
+        fetchMovieData.execute(pre);
+
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+
     }
 
     public class FetchMovieData extends AsyncTask<String,Void,ArrayList<Movie>> {

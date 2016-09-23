@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements Moviefragment.Cal
 
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_actiivity_id, new FavoriteFragment())
+                    .replace(R.id.main_actiivity_id, new FavoriteFragment())
                     .commit();
                 Toast.makeText(MainActivity.this,"Check internet connection",Toast.LENGTH_LONG).show();
             flag=true;
@@ -64,20 +64,9 @@ public class MainActivity extends AppCompatActivity implements Moviefragment.Cal
 
     public boolean isOnline() {
 
-
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        Log.i("onnn", cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)==null?"y":"n");
-
-        if (
-        //cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                        cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-
-            connect=true;
-            return connect;
-        }
-        connect=false;
-        return connect;
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
     }
 }
